@@ -55,12 +55,12 @@ class Thonet extends Furniture {
     partList = new ArrayList<Part>();   // clear parts
 
     if (thonetMesh == null) {
-      thonetMesh = new ToxicMesh();
-      thonetMesh.loadMesh("Thonet14_m_binary.stl");
-      thonetMesh.setLocation(Vec3D.ZERO.copy());
-      thonetMesh.setMaterial("wood");
+//      thonetMesh = new ToxicMesh();
+//      thonetMesh.loadMesh("Thonet14_m_binary.stl");
+//      thonetMesh.setLocation(Vec3D.ZERO.copy());
+//      thonetMesh.setMaterial("wood");
     }
-    partList.add(thonetMesh);
+//    partList.add(thonetMesh);
 
     float tFrontLegY =  loc.y+((tSeatR-tTubeR-5) * sin((PI/2)-tFrontLegA));
     float tFrontLegXR = loc.x+((tSeatR-tTubeR-5) * cos((PI/2)+tFrontLegA));

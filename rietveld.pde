@@ -101,14 +101,14 @@ class Rietveld extends Furniture {
     blockShapeList = new ArrayList<BlockShape>(); 
     if (original) {
       if (rietveldMesh == null) {
-        rietveldMesh = new ToxicMesh();
-        rietveldMesh.loadMesh("Rietveld_m_binary.stl");
-        //rietveldMesh.setLocation(Vec3D.ZERO.copy());
-        rietveldMesh.setScale(1000);
-        rietveldMesh.offcenter = true;
-        rietveldMesh.update();
+//        rietveldMesh = new ToxicMesh();
+//        rietveldMesh.loadMesh("Rietveld_m_binary.stl");
+//        //rietveldMesh.setLocation(Vec3D.ZERO.copy());
+//        rietveldMesh.setScale(1000);
+//        rietveldMesh.offcenter = true;
+//        rietveldMesh.update();
       } 
-      partList.add(rietveldMesh);
+//      partList.add(rietveldMesh);
     }
 
 

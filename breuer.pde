@@ -76,15 +76,15 @@ class Breuer extends Furniture {
 
     if (original) {
       if (breuerMesh == null) {
-        breuerMesh = new ToxicMesh();
-        breuerMesh.loadMesh("Breuer_m_binary.stl");
-        breuerMesh.setLocation(new Vec3D(0, 0, -bTubeR));
-        breuerMesh.setScale(1000);
-        breuerMesh.offcenter = true;
-        breuerMesh.material = "model";
-        breuerMesh.update();
+//        breuerMesh = new ToxicMesh();
+//        breuerMesh.loadMesh("Breuer_m_binary.stl");
+//        breuerMesh.setLocation(new Vec3D(0, 0, -bTubeR));
+//        breuerMesh.setScale(1000);
+//        breuerMesh.offcenter = true;
+//        breuerMesh.material = "model";
+//        breuerMesh.update();
       }
-      partList.add(breuerMesh);
+//      partList.add(breuerMesh);
     }
 
     if (basics) {
