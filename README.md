@@ -3,30 +3,32 @@ reácollection is a piece of software for the creation of objects and products th
 
 Initial version includes 5 collections, look at these files to create your own:
 
-á breuer.pde
-á rietveld.pde
-á lack.pder
-á thonet.pde
-á castiglioni.pde
-á jewel.pde
-á vase.pde
+breuer.pde
+rietveld.pde
+lack.pder
+thonet.pde
+castiglioni.pde
+jewel.pde
+vase.pde
 
 Written in Processing, ToxicLibs, Hemesh, ControlP5
 
 Also borrows code from HE_MeshGUI.
 
 http://www.dosislas.org/recollection
+
 http://vimeo.com/vicvina/recollection
+
 http://www.laboralcentrodearte.org/es/trastienda
 
 
 /////////////
 
-á Retained shapes for increased performace (code from:  )
-á Exports to STL
-á Automatic generation of catalogs
-á Mesh subdivision
-á Volumetric space
-á Integrated GUI
+-Retained shapes for increased performace (code from:  )
+-Exports to STL
+-Automatic generation of catalogs
+-Mesh subdivision
+-Volumetric space
+-Integrated GUI
 
 //////////////
