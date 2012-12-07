@@ -204,33 +204,37 @@ void initGeometry() {
   updateWorld();
   furnitureList = new ArrayList<Furniture>();   
 
-  Furniture jewel = new Jewel();
-  jewel.name ="jewel";
-  furnitureList.add(jewel);
+  Furniture radiolaria = new Radiolaria();
+  radiolaria.name ="radiolaria";
+  furnitureList.add(radiolaria);
 
-  Furniture breuer = new Breuer();
-  breuer.name ="breuer";
-  furnitureList.add(breuer);
-
-  Furniture rietveld = new Rietveld();
-  rietveld.name ="rietveld";
-  furnitureList.add(rietveld);
-
-  Furniture lack = new Lack();
-  lack.name ="lack";
-  furnitureList.add(lack);
+//  Furniture jewel = new Jewel();
+//  jewel.name ="jewel";
+//  furnitureList.add(jewel);
 //
-//  Furniture thonet = new Thonet();
-//  thonet.name ="thonet";
-//  furnitureList.add(thonet);
+//  Furniture breuer = new Breuer();
+//  breuer.name ="breuer";
+//  furnitureList.add(breuer);
 //
-  Furniture vase = new Vase();
-  vase.name ="vase";
-  furnitureList.add(vase);
-
-  Furniture castiglioni = new Castiglioni();
-  castiglioni.name ="castiglioni";
-  furnitureList.add(castiglioni);
+//  Furniture rietveld = new Rietveld();
+//  rietveld.name ="rietveld";
+//  furnitureList.add(rietveld);
+//
+//  Furniture lack = new Lack();
+//  lack.name ="lack";
+//  furnitureList.add(lack);
+////
+////  Furniture thonet = new Thonet();
+////  thonet.name ="thonet";
+////  furnitureList.add(thonet);
+////
+//  Furniture vase = new Vase();
+//  vase.name ="vase";
+//  furnitureList.add(vase);
+//
+//  Furniture castiglioni = new Castiglioni();
+//  castiglioni.name ="castiglioni";
+//  furnitureList.add(castiglioni);
 
   updateWorld();
   generateGeometry();

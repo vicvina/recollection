@@ -1,4 +1,5 @@
 
+int startMode = 8;
 int furniture = 0;
 boolean validated = true;
 
@@ -15,8 +16,8 @@ boolean details = false;
 boolean light = true;
 boolean soft = false;
 boolean isometric = false;
-boolean ground = true;
-boolean grid = true;
+boolean ground = false;
+boolean grid = false;
 boolean rotation = false;
 boolean dragged = false;
 boolean moved = false;

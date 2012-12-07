@@ -968,6 +968,24 @@ class HeMesh extends Part {
 //    this.axis = axis;
 //  }
   
+  void display() {
+    if (structure) {
+       stroke(strokeColor, strokeAlpha);
+        render.drawEdges(myMesh);
+    }
+
+    if (filled) {
+      fill(fillColor, fillAlpha);
+      render.drawFaces(myMesh);
+    }
+
+    if (dots) {
+      stroke(redColor, strokeAlpha);
+     // render.drawVertices(myMesh);
+    }
+    
+  }
+  
   void update() {
 
   }
@@ -976,9 +994,6 @@ class HeMesh extends Part {
     if (myMesh != null) {
       addMesh(myMesh, material);
     }
-  }
-
-  void display() {
   }
 }
 

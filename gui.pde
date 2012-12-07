@@ -144,7 +144,7 @@ void initGui() {
   fillAlpha = 255;
   fillColor = 255;
 
-  setMode(1);
+  setMode(startMode);
 
   lightFont = createFont("HelveticaNeue-Light", 10);
   boldFont = createFont("HelveticaNeue-Bold", 10);

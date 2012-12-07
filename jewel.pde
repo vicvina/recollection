@@ -48,7 +48,6 @@ class Jewel extends Furniture {
     createSlider(gJewel, "jHeight", jHeight, 100, 2000, true, "height");
     createSlider(gJewel, "jResX", jResX, 1, 64, true, "resolution x");
     createSlider(gJewel, "jResY", jResY, 1, 64, true, "resolution y");
-    // createSlider(gJewel, "jPlateThickness", jPlateThickness, 1, 100, true, "plate thickness");
     cy += sh/2;
     createSlider(gJewel, "jSubdivide", jSubdivide, 0, 100, true, "subdivide");
     createSlider(gJewel, "jSubdivideValue", jSubdivideValue, 0, 10, true, "subdivide value");
@@ -74,7 +73,6 @@ class Jewel extends Furniture {
 
     createSlider(gJewel, "jCatmullClark", jCatmullClark, 0, 100, true, "catmull clark");
     createSlider(gJewel, "jCatmullClarkValue", jCatmullClarkValue, 0, 3, true, "catmull clark value");
-
 
     //    createToggle(gTable, "taCrossRails", taCrossRails, "cross rails");
     //    updateControllerList.add("taTubeR");
@@ -129,7 +127,6 @@ class Jewel extends Furniture {
     }
 
     //  HE_Face[] faceList =  ((HE_MeshStructure)structureMesh).getFacesAsArray();
-
 
     if (jSubdivide > 0) {
       HE_Selection selection = makeSelection(jSubdivide);
@@ -196,35 +193,6 @@ class Jewel extends Furniture {
     return selection;
   }
 
-  void display() {
-
-    if (structure) {
-       stroke(strokeColor, strokeAlpha);
-        render.drawEdges(myShape);
-    }
-
-
-    if (filled) {
-      fill(fillColor, fillAlpha);
-      render.drawFaces(myShape);
-    }
-
-    if (structure) {
-      //stroke(redColor, strokeAlpha);
-      //  render.drawVertex(myShape);
-    }
-    for (Part thisPart : partList) {
-      thisPart.update();
-    }
-  }
-
-  void update() {
-    //    pipe.cornerR = taCornerR;
-    //    pipe.tubeR = taTubeR;
-    for (Part thisPart : partList) {
-      thisPart.update();
-    }
-  }
 
   void randomize() {
   }
