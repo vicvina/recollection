@@ -212,9 +212,9 @@ void initGeometry() {
 //  jewel.name ="jewel";
 //  furnitureList.add(jewel);
 //
-//  Furniture breuer = new Breuer();
-//  breuer.name ="breuer";
-//  furnitureList.add(breuer);
+  Furniture breuer = new Breuer();
+  breuer.name ="breuer";
+  furnitureList.add(breuer);
 //
 //  Furniture rietveld = new Rietveld();
 //  rietveld.name ="rietveld";

@@ -1,4 +1,6 @@
-float targetZoom, targetFov, targetZ, targetY, targetX;
+float targetZoom, targetFov, targetZ, targetX;
+
+float currentFov, currentZoom, currentZ, currentX;
 float offsetX, offsetY;
 
 float locX = 0;
@@ -6,8 +8,8 @@ float locY = 0;
 
 void initCamera() {
   targetFov = 0.6; // radians(60);
-  targetX = radians(60);
-  targetZ = radians(45+180);
+  // targetX = radians(60);
+  // targetZ = radians(45+180);
   targetZoom = -0.07;
   addMouseWheelListener(new java.awt.event.MouseWheelListener() { 
     public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) { 
@@ -22,7 +24,7 @@ void initCamera() {
 
 void updateCamera() {
   hint(ENABLE_DEPTH_TEST);
-  translate(width/2, locY+(height/2));
+  translate(width/2, height/2);
   if (isometric) { // isometric
     ortho(-width/2, width/2, (-height/2), (height/2), -2000, 2000);
     scale(map(targetZoom, 0, 2, targetFov, 2*PI));  // adjust later so fov relates to zoom
@@ -46,11 +48,20 @@ void updateCamera() {
     if (rotation && !dragged) {
       targetZ += .005;
     }
+
+    float cameraDelay = .1;
+   // float cameraJog = .1;
+    currentFov += (targetFov-currentFov) * cameraDelay;
+    currentZoom += (targetZoom-currentZoom) * cameraDelay;
+    currentX += (targetX-currentX) * cameraDelay;
+    currentZ += (targetZ-currentZ) * cameraDelay;
+
     // if (targetZ<0) targetZ = (2*PI)-targetZ;  // update gui for continous rotation !!!
     // if (targetZ>2*PI) targetZ = (targetZ%(2*PI));
-    scale(map(targetZoom, 0, 1, targetFov, 2*PI));  // adjust so fov relates to zoom  !!!
-    rotateX(targetX);
-    rotateZ(targetZ);
+    scale(map(currentZoom, 0, 1, currentFov, 2*PI));  // adjust so fov relates to zoom   !!!
+    translate(locX, locY);
+    rotateX(currentX);
+    rotateZ(currentZ);
   }
 }
 
