@@ -791,7 +791,7 @@ class SplineTube extends Part {
   void update() { 
     Spline3D spline = new Spline3D(pointList);
     spline.setTightness(tightness);      //  tight
-    myCurve = new LineStrip3D(spline.computeVertices(curveRes));   //  res
+    myCurve = spline.toLineStrip3D(curveRes);   //  res
   }
 
   void build() {
@@ -1086,7 +1086,7 @@ class Bulb extends Part {
 
   void update() {
     //    Vec3D thisDirection = myAxis.getDirection();
-    mySphere = new Sphere(Vec3D.ZERO, sphereRadius);
+
     //    mySphere.rotateZ(thisDirection.z);
     //    mySphere.rotateY(thisDirection.y);
     //    mySphere.rotateX(thisDirection.x);
@@ -1094,6 +1094,7 @@ class Bulb extends Part {
   }
 
   void build() {
+        mySphere = new Sphere(Vec3D.ZERO, sphereRadius);
     Vec3D thisDirection = myAxis.getDirection();
     TriangleMesh bulbMesh = (TriangleMesh)mySphere.toMesh(sphereRes);
     bulbMesh.rotateZ(thisDirection.z);

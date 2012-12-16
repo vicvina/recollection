@@ -14,7 +14,7 @@ class Rietveld extends Furniture {
   };
 
   String[] rMaterialList = {
-    "black","black","black","black","black","red","blue"
+    "black", "black", "black", "black", "black", "red", "blue"
   };
 
   Vec3D[] rDimensionList = {   // convention: biggest dimension should be on x (will define axis)
@@ -101,14 +101,14 @@ class Rietveld extends Furniture {
     blockShapeList = new ArrayList<BlockShape>(); 
     if (original) {
       if (rietveldMesh == null) {
-//        rietveldMesh = new ToxicMesh();
-//        rietveldMesh.loadMesh("Rietveld_m_binary.stl");
-//        //rietveldMesh.setLocation(Vec3D.ZERO.copy());
-//        rietveldMesh.setScale(1000);
-//        rietveldMesh.offcenter = true;
-//        rietveldMesh.update();
+        //        rietveldMesh = new ToxicMesh();
+        //        rietveldMesh.loadMesh("Rietveld_m_binary.stl");
+        //        //rietveldMesh.setLocation(Vec3D.ZERO.copy());
+        //        rietveldMesh.setScale(1000);
+        //        rietveldMesh.offcenter = true;
+        //        rietveldMesh.update();
       } 
-//      partList.add(rietveldMesh);
+      //      partList.add(rietveldMesh);
     }
 
 
@@ -198,14 +198,12 @@ class Rietveld extends Furniture {
         newBlock.thickness = (int)thisDimension.z;
         newBlock.material = rMaterialList[thisType];
         newBlock.calculate();
-
         if ((!rWithinWorld || newBlock.isWithinWorld()) && 
           !newBlock.intersectsBlockList(blockList, gridSize/2) && 
           !newBlock.intersectsBlockShapeList(blockShapeList, gridSize/2)) {
           partList.add(newBlock);
           blockShapeList.add(newBlock);
           return true;
-          //  break;
         } 
         else {
           newBlock.thickness = -(int)thisDimension.z;  // to flip normal!!!
@@ -216,7 +214,6 @@ class Rietveld extends Furniture {
             partList.add(newBlock);
             blockShapeList.add(newBlock);
             return true;
-            //  break;
           }
         }
       }

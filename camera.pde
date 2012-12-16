@@ -8,19 +8,21 @@ float locY = 0;
 
 void initCamera() {
   targetFov = 0.6; // radians(60);
-  // targetX = radians(60);
-  // targetZ = radians(45+180);
+  targetX = radians(60);
+  targetZ = radians(45+180);
   targetZoom = -0.07;
+
   addMouseWheelListener(new java.awt.event.MouseWheelListener() { 
     public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) { 
       mouseWheel(evt.getWheelRotation());
     }
   }
   );
-  hint(DISABLE_OPENGL_ERRORS);  // not sure it works in 2.0b6
+  //hint(DISABLE_OPENGL_ERRORS);  // not sure it works in 2.0b6
   //hint(ENABLE_DEPTH_SORT);
   //hint(ENABLE_ACCURATE_2D ); really bad performance !!
 }
+
 
 void updateCamera() {
   hint(ENABLE_DEPTH_TEST);
@@ -28,9 +30,9 @@ void updateCamera() {
   if (isometric) { // isometric
     ortho(-width/2, width/2, (-height/2), (height/2), -2000, 2000);
     scale(map(targetZoom, 0, 2, targetFov, 2*PI));  // adjust later so fov relates to zoom
+    translate(locX, locY);
     rotateX(radians(60));
     rotateZ(radians(45+180));
-    translate(0, 200);
   } 
   else {  // perspective
     float cameraZ = (height/2.0) / tan(targetFov/2.0);
@@ -50,7 +52,7 @@ void updateCamera() {
     }
 
     float cameraDelay = .1;
-   // float cameraJog = .1;
+    // float cameraJog = .1;
     currentFov += (targetFov-currentFov) * cameraDelay;
     currentZoom += (targetZoom-currentZoom) * cameraDelay;
     currentX += (targetX-currentX) * cameraDelay;
@@ -77,15 +79,13 @@ void pressCamera() {
     gui = true;
   } 
   else {
-    if (!cp5.isMouseOver()) {
-      offsetX = mouseX;
-      offsetY = mouseY;
-      if (keyCode == 157) {
-        moved = true;
-      } 
-      else {
-        dragged = true;
-      }
+    offsetX = mouseX;
+    offsetY = mouseY;
+    if (keyCode == 157) {
+      moved = true;
+    } 
+    else {
+      dragged = true;
     }
   }
 }
@@ -119,6 +119,16 @@ void mousePressed() {
 void mouseReleased() {
   releaseCamera();
 }
+
+
+//void addMouseWheelListener() {
+  //  frame.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+  //    public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+  //      cp5.setMouseWheelRotation(e.getWheelRotation());
+  //    }
+  //  }
+  //  );
+//}
 
 void mouseWheel(int delta) {
   if (!cp5.isMouseOver()) {

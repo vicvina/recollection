@@ -1,5 +1,5 @@
-
-int raStep = 64;
+float raRatio = 1;
+int raPointNum = 90;
 int raRadius = 500;
 float raa1 = 1;
 float rab1 = 1;
@@ -15,10 +15,16 @@ float ran12 = 1;
 float ran22 = 1;
 float ran32 = 2;
 
-Vec2D[] superFormulaPoints;
-Vec3D[] superShapePoints;
+String raMaterial = "red";
+boolean raAnimate = true;
 
 class Radiolaria extends Furniture {
+
+  Vec2D[] superFormulaPoints;
+  Vec3D[][] superShapePoints;
+
+
+  ToxicMesh myMesh;
 
   Radiolaria () {
     reset();
@@ -26,9 +32,28 @@ class Radiolaria extends Furniture {
     cx = 0;
     cy = 0;
     Group gRadiolaria = cp5.addGroup("radiolaria").setPosition(columnx, marginy).hideBar();
-    createSlider(gRadiolaria, "raRadius", raRadius, 0, 500, true, "raduis");
-    createSlider(gRadiolaria, "raStep", raStep, 128, 256, true, "detail");
+    createSlider(gRadiolaria, "raRadius", raRadius, 0, 500, true, "radius");
+    createSlider(gRadiolaria, "raPointNum", raPointNum, 12, 180, true, "detail"); //.plugTo(this);
+
+    //createSlider(gRadiolaria, "raStep", raStep, 256, 180, true, "detail");
+    //    
+    //    Slider s = cp5.addSlider("raPointNum", 0, 50, cx, cy, guix, guiy).setGroup("radiolaria");
+    //    //
+    //    s.plugTo(this, "raPointNum");
+    //      s.setLabel("point num").setAutoUpdate(true); // .setDecimalPrecision(1).setSliderMode(Slider.FIX)  // .showTickMarks(true).setNumberOfTickMarks(11).setColorTickMark(activeColor).snapToTickMarks(false)
+    //  controlP5.Label l = s.captionLabel();
+    //  l.toUpperCase(false);
+    //  l.style().marginLeft = 2;
+    //  cy+= sh;
+    //  //return s;
+
+
+
     cy += sh/2;
+
+    createToggle(gRadiolaria, "raAnimate", raAnimate, "animate");
+    createSlider(gRadiolaria, "raRatio", raRatio, 0, 2, true, "growth");
+
     createSlider(gRadiolaria, "raa1", raa1, 1, 20, true, "a1");
     createSlider(gRadiolaria, "rab1", rab1, 1, 20, true, "b1");
     createSlider(gRadiolaria, "ram1", ram1, 1, 20, true, "m1");
@@ -42,77 +67,134 @@ class Radiolaria extends Furniture {
     createSlider(gRadiolaria, "ran12", ran12, 1, 20, true, "n12");
     createSlider(gRadiolaria, "ran22", ran22, 1, 20, true, "n22");
     createSlider(gRadiolaria, "ran32", ran32, 1, 20, true, "n32");
-    //  updateControllerList.add("taTubeR");
-    //  updateControllerList.add("taCornerR");
+
+    String[] materialNames = new String[materialList.size()];
+    for (int i=0;i<materialList.size();i++) {
+      Material thisMaterial = materialList.get(i);
+      materialNames[i] = thisMaterial.name;
+    }
+    createDropdownList(gRadiolaria, "materials", materialNames);
+
     generateControllerList.add("raa1");
     generateControllerList.add("rab1");
     generateControllerList.add("ram1");
     generateControllerList.add("ran11");
     generateControllerList.add("ran21");
     generateControllerList.add("ran31");
-
     generateControllerList.add("raa2");
     generateControllerList.add("rab2");
     generateControllerList.add("ram2");
     generateControllerList.add("ran12");
     generateControllerList.add("ran22");
     generateControllerList.add("ran32");
-
+    generateControllerList.add("raPointNum");
     generateControllerList.add("raRadius");
   }
 
   void generate() {
     partList = new ArrayList<Part>();
-    //    pipe = new Pipe();
-    //    pipe.material= "metal";
-    //    partList.add(pipe);
-    superFormulaPoints = superFormula(raa1, rab1, ram1, ran11, ran21, ran31);
-    superShapePoints = superShape(raa1, rab1, ram1, ran11, ran21, ran31, raa2, rab2, ram2, ran12, ran22, ran32);
+    myMesh = new ToxicMesh();
+    myMesh.material = raMaterial;
+    partList.add(myMesh);
+
+    //superFormulaPoints = superFormula(raa1, rab1, ram1, ran11, ran21, ran31);
+
+    if (raAnimate) {
+      float inc = 1+sin(millis()/1000.0)/2*raRatio;
+      superShapePoints = superShape(raa1, rab1, ram1, ran11*inc, ran21*inc, ran31*inc, raa2, rab2, ram2, ran12*inc, ran22*inc, ran32*inc);
+    } 
+    else {
+      superShapePoints = superShape(raa1, rab1, ram1, ran11, ran21, ran31, raa2, rab2, ram2, ran12, ran22, ran32);
+    }
+
+    TriangleMesh superSurface = new TriangleMesh();
+    for (int i = 0;i < raPointNum; i++) {
+      for (int j = 0;j < raPointNum; j++) {
+        int ni = (i+1)%raPointNum;
+        int nj = constrain(j+1, 0, raPointNum-1);
+        superSurface.addFace(superShapePoints[i][j], superShapePoints[i][nj], superShapePoints[ni][j]);
+        superSurface.addFace(superShapePoints[ni][j], superShapePoints[ni][nj], superShapePoints[i][nj]);
+      }
+    }
+    myMesh.setMesh(superSurface);
     generated = true;
     validated = true;
   }
 
+  void update() {
+    println("update");
+    myMesh.material = raMaterial;
+    // updateMaterials();
+  }
+
+
+  InterpolateStrategy tween=new CosineInterpolation();
+
   void display() {
+
+    if (raAnimate) {
+      generate();
+      buildGeometry();
+      // float inc = sin(millis()%1000/1000);
+
+      //  float inc = tween.interpolate(0.5,1.5,(millis()%1000)/1000.0);
+      //  raa1 += random(1);
+      //rab1 += random(1);
+      //ram1 += random(15);
+      //    ran11 *= inc;
+      //    ran21  *= inc;
+      //    ran31  *= inc;
+      //   // raa2 += random(2);
+      //   // rab2 += random(2);
+      //   // ram2 +=random(15);
+      //    ran12  *= inc;
+      //    ran22  *= inc;
+      //    ran32  *= inc;
+      //generate();
+    }
+
     if (structure) {
-      stroke(strokeColor, 0, 0, strokeAlpha);
+      strokeWeight(thinStroke);
+      stroke(strokeColor, strokeAlpha);
       noFill();
-      beginShape();
-      curveVertex(superFormulaPoints[superFormulaPoints.length-1].x, superFormulaPoints[superFormulaPoints.length-1].y);
-      for (int i = 0;i < superFormulaPoints.length; i++) {
-        curveVertex(superFormulaPoints[i].x, superFormulaPoints[i].y);
+      //      beginShape();
+      //      curveVertex(superFormulaPoints[superFormulaPoints.length-1].x, superFormulaPoints[superFormulaPoints.length-1].y);
+      //      for (int i = 0;i < superFormulaPoints.length; i++) {
+      //        curveVertex(superFormulaPoints[i].x, superFormulaPoints[i].y);
+      //      }
+      //      curveVertex(superFormulaPoints[0].x, superFormulaPoints[0].y);
+      //      endShape();
+      //      stroke(0, 0, strokeColor, strokeAlpha);
+      //      beginShape();
+      //      for (int i = 0;i < superShapePoints.length; i++) {
+      //        curveVertex(superShapePoints[i].x, superShapePoints[i].y, superShapePoints[i].z);
+      //      }
+      //      endShape();
+      for (int i = 0;i < raPointNum; i++) {
+        for (int j = 0;j < raPointNum; j++) {
+          fx.line(superShapePoints[i][j], superShapePoints[(i+1)%raPointNum][j]);
+          fx.line(superShapePoints[i][j], superShapePoints[i][constrain(j+1, 0, raPointNum-1)]);
+        }
       }
-      curveVertex(superFormulaPoints[0].x, superFormulaPoints[0].y);
-      endShape();
-      stroke(0, 0, strokeColor, strokeAlpha);
-      beginShape();
-      for (int i = 0;i < superShapePoints.length; i++) {
-        curveVertex(superShapePoints[i].x, superShapePoints[i].y, superShapePoints[i].z);
-      }
-      endShape();
     }
 
     if (dots) {
-      for (int i = 0;i < superShapePoints.length; i++) {
-        fx.point(superShapePoints[i]);
+      for (int i = 0;i < raPointNum; i++) {
+        for (int j = 0;j < raPointNum; j++) {
+          fx.point(superShapePoints[i][j]);
+        }
       }
     }
   }
 
-  int index;
-
-  Vec3D[] superShape(float a1, float b1, float m1, float n11, float n21, float n31, float a2, float b2, float m2, float n12, float n22, float n32) {
-    float b = .1;
-    int numPoints = 24;
-    float phi = TWO_PI / numPoints;
-    Vec3D[] points = new Vec3D[numPoints*numPoints];
+  Vec3D[][] superShape(float a1, float b1, float m1, float n11, float n21, float n31, float a2, float b2, float m2, float n12, float n22, float n32) {
+    float phi = TWO_PI / raPointNum;
+    Vec3D[][] points = new Vec3D[raPointNum][raPointNum];
     int index = 0;
-    for (int i=0;i<numPoints;i++) {
+    for (int i=0;i<raPointNum;i++) {
       float s = -PI+(phi*i);
-      //  geometry = new THREE.Geometry();
-      // Vec3D[] section = 
-      for (int j=0;j<numPoints;j++) {
+      for (int j=0;j<raPointNum;j++) {
         float p = (-PI/2) + (j*phi/2);
-        //  for (float p = -PI / 2; p < PI / 2; p += b) {
         float f, e, n, d, t, a, q, m, l, k, h;
         float c = 0;
         float o = 0;
@@ -142,19 +224,16 @@ class Radiolaria extends Furniture {
         c = t * cos(s) * q * cos(p) * raRadius;
         o = t * sin(s) * q * cos(p) * raRadius;
         u = q * sin(p) * raRadius;
-
-        points[index++] = new Vec3D(c, o, u);
+        points[i][j] = new Vec3D(c, o, u);
       }
     }
-    println(index);
     return points;
   }
 
   Vec2D[] superFormula(float a, float b, float m, float n1, float n2, float n3) {
-    int numPoints = 360;
-    float phi = TWO_PI / numPoints;
-    Vec2D[] points = new Vec2D[numPoints+1];
-    for (int i = 0;i <= numPoints;i++) {
+    float phi = TWO_PI / raPointNum;
+    Vec2D[] points = new Vec2D[raPointNum+1];
+    for (int i = 0;i <= raPointNum;i++) {
       points[i] = superformulaPoint(a, b, m, n1, n2, n3, phi * i);
     }
     return points;
@@ -186,18 +265,19 @@ class Radiolaria extends Furniture {
   }
 
   void randomize() {
-    raa1 = 1;//random(20);
-    rab1 = 1;//random(20);
-    ram1 = random(32);
-    ran11 =random(20);
-    ran21 = random(20);
-    ran31 = (int)random(20);
-    raa2 = 1;//random(20);
-    rab2 = 1;//random(20);
-    ram2 =random(32);
-    ran12 = random(20);
-    ran22 = random(20);
-    ran32 = random(20);
+    raa1 = .5+random(1);//random(20);
+    rab1 = .5+random(1);//random(20);
+    ram1 = random(15);
+    ran11 =random(15);
+    ran21 = random(5);
+    ran31 = random(5);
+    raa2 = .5+random(2);//random(20);
+    rab2 = .5+
+      random(2);//random(20);
+    ram2 =random(15);
+    ran12 = random(15);
+    ran22 = random(5);
+    ran32 = random(5);
   }
 }
 

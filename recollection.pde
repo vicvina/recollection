@@ -1,6 +1,5 @@
-
-int startMode = 8;
-int furniture = 0;
+int startMode = 1;
+int furniture = 1;
 boolean validated = true;
 
 boolean gui = true;
@@ -17,7 +16,7 @@ boolean light = true;
 boolean soft = false;
 boolean isometric = false;
 boolean ground = false;
-boolean grid = false;
+boolean grid = true;
 boolean rotation = false;
 boolean dragged = false;
 boolean moved = false;
@@ -31,10 +30,12 @@ boolean show = false;
 boolean auto = false;
 boolean validate = false;
 
+import java.util.*;
+
 import toxi.processing.*;
 import toxi.geom.*;
 import toxi.geom.mesh.*;
-import toxi.math.MathUtils;
+import toxi.math.*;
 
 ToxiclibsSupport fx;
 
@@ -67,12 +68,11 @@ PShape retained;
 //float MAX_ISO=0.66;
 
 void setup() {
-  background(backgroundColor);
   size(displayWidth, displayHeight, P3D);
   frameRate(60);
   smooth(smoothLevel);
   fx = new ToxiclibsSupport(this);
-  render=new WB_Render(this);
+  render = new WB_Render(this);
   initGui();
   initCamera();
   initGeometry();

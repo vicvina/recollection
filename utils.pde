@@ -125,30 +125,36 @@ boolean checkLinesParallel(Line3D a, Line3D b) {
 }
 
 boolean checkLinesCoincident(Line3D a, Line3D b) {
-  Line3D.LineIntersection closestLine = a.closestLineTo(b);
-  if (closestLine.getType().equals(Line3D.LineIntersection.Type.valueOf("INTERSECTING"))) {
-    // lines intersect at some point, so not parallel nor coincident
+  //  if (a.equals(b) || a.equals(b.getInverted())) {
+  //    return true;
+  //  }
+  if (!checkLinesParallel(a, b)) {
     return false;
   }
-  else { 
-    // lines are coincident or parallel
-    Line3D midPointLine = new Line3D(a.getMidPoint(), b.getMidPoint());
-    Vec3D midPointLineDirection = midPointLine.getDirection().normalize();
-    float midPointLineLength = midPointLine.getLength();
-    if (a.equals(b)  || a.getDirection().equals(midPointLineDirection) || a.getDirection().add(midPointLineDirection).isZeroVector() ) {
-      // lines are equal or coincident
-      return true;
-    }
-    else {
-      // lines are parallel but not coincident
-      return false;
-    }
+  // lines are coincident or parallel
+  Line3D midPointLine = new Line3D(a.getMidPoint(), b.getMidPoint());
+  Vec3D midPointLineDirection = midPointLine.getDirection().normalize();
+  float midPointLineLength = midPointLine.getLength();
+  //
+
+  //println(a.getDirection()+" "+b.getDirection()+" "+midPointLineDirection+" "+       midPointLineDirection.getInverted());  
+  if (a.getDirection().equals(midPointLineDirection.getInverted()) ) {
+
+    // lines are equal or coincident
+    return true;
+  }
+  else {
+    // lines are parallel but not coincident
+    return false;
   }
 }
 
 boolean checkLinesCollision(Line3D a, Line3D b) {
-  Line3D.LineIntersection closestLine = a.closestLineTo(b);
-  if (closestLine.getType().equals(Line3D.LineIntersection.Type.valueOf("INTERSECTING"))) {
+  Vec3D aDir = a.getDirection();
+  Vec3D bDir = b.getDirection();
+  if (!aDir.equals(bDir) && !aDir.equals(bDir.getInverted())) {
+    Line3D.LineIntersection closestLine = a.closestLineTo(b);
+    // if (closestLine.getType().equals(Line3D.LineIntersection.Type.valueOf("INTERSECTING"))) {
     // lines intersect
     float[] coefficients = closestLine.getCoefficients();
     if ((coefficients[0] > 0 && coefficients[0] < 1 && coefficients[1] > -1 && coefficients[1] < 0)) {
@@ -165,13 +171,13 @@ boolean checkLinesCollision(Line3D a, Line3D b) {
     Line3D midPointLine = new Line3D(a.getMidPoint(), b.getMidPoint());
     Vec3D midPointLineDirection = midPointLine.getDirection().normalize();
     float midPointLineLength = midPointLine.getLength();
-    if (a.equals(b)) {
-      // lines are equal
+    if (a.equals(b) || a.getMidPoint().equals(b.getMidPoint())) {
+      // lines are equal or have same center !! important otherwise following conditions are not valid !!!
       return true;
     } 
-    else if (a.getDirection().equals(midPointLineDirection) || a.getDirection().add(midPointLineDirection).isZeroVector()) {
+    else if (a.getDirection().equals(midPointLineDirection) || a.getDirection().equals(midPointLineDirection.getInverted())) {
       // lines are parallel and coincident
-      if (midPointLineLength < ((a.getLength()/2) + (b.getLength()/2))) {
+      if (midPointLineLength < ((a.getLength()/2) + (b.getLength()/2))) {   // is this fucking working ???
         // lines are coincident and segments intersect
         return true;
       } 
@@ -186,6 +192,52 @@ boolean checkLinesCollision(Line3D a, Line3D b) {
     }
   }
 }
+
+//boolean checkLinesCollisionBis(Line3D a, Line3D b) {
+//  Line3D.LineIntersection closestLine = a.closestLineTo(b);
+//  if (closestLine.getType().equals(Line3D.LineIntersection.Type.valueOf("INTERSECTING"))) {
+//    // lines intersect
+//    float[] coefficients = closestLine.getCoefficients();
+//    if ((coefficients[0] > 0 && coefficients[0] < 1 && coefficients[1] > -1 && coefficients[1] < 0)) {
+//      // intersection point is inside segments
+//      println("collision intersecting");
+//      return true; // true INTERSECTING: COLLISION
+//    }  
+//    else {
+//      // intersection point is outside segments
+//      return false;
+//    }
+//  }
+//  else { 
+//    // lines are coincident or parallel
+//    Line3D midPointLine = new Line3D(a.getMidPoint(), b.getMidPoint());
+//    Vec3D midPointLineDirection = midPointLine.getDirection();
+//    float midPointLineLength = midPointLine.getLength();
+////    if (a.equals(b)) {
+////      // lines are equal
+////      return true;
+////    } 
+//     if (a.getDirection().equals(midPointLineDirection) || a.getDirection().equals(midPointLineDirection.getInverted())) {
+//      // lines are parallel and coincident
+//      if (midPointLineLength < ((a.getLength()/2) + (b.getLength()/2))) {
+//        // lines are coincident and segments intersect
+//        // println("coincident intersection");
+//        return true;
+//      } 
+//      else {
+//        // lines are coincident but segments DO NOT intersect
+//        // println("coincident not intersection");
+//        return false;
+//      }
+//    }
+//    else {
+//      // lines are parallel but not coincident
+//      return false;
+//    }
+//  }
+//}
+
+
 
 boolean isOnScreen(Vec3D thisVector) {
   if (screenX(thisVector.x, thisVector.y) > -200 && screenX(thisVector.x, thisVector.y) < width+200 &&

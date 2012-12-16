@@ -8,8 +8,8 @@ int pLocY;
 int pLocZ;
 
 int worldX = 1200;
-int worldY = 1200;
-int worldZ = 700;
+int worldY = 800;
+int worldZ = 1000;
 int gridSize = 50;
 
 float tightness = .25;
@@ -32,11 +32,11 @@ boolean doRebuild = false;
 ArrayList <Furniture> furnitureList;
 ArrayList <Material> materialList;
 
+
 class Material {
   HE_Mesh heMesh = null; // = new HE_Mesh();    // he_mesh 
   TriangleMesh toxicMesh = null; // = new TriangleMesh();    // toxic
   PShape shapeMesh;// = new PShape();
-  PShape retained;// = createShape(TRIANGLES);
   String name;
   int fillColor;
   int alphaColor;
@@ -50,11 +50,11 @@ class Material {
   } 
 
   PShape meshToRetained(Mesh3D toxicMesh, HE_Mesh heMesh, boolean smth) {        
-    retained = createShape(TRIANGLES);
-      retained.enableStyle();
+    PShape retained = createShape(TRIANGLES);
+    retained.enableStyle();
     if (solid) {
       if (material) {
-        retained.fill(fillColor, alphaColor);
+        retained.fill(fillColor, solidAlpha);
       } 
       else {
         retained.fill(solidColor, solidAlpha);
@@ -156,7 +156,6 @@ void addMesh(TriangleMesh thisMesh, String thisName) {
   }
 }
 
-
 Material getMaterial(String thisName) {
   for (Material thisMaterial : materialList) {
     if (thisMaterial.name == thisName) {
@@ -183,8 +182,8 @@ void initMaterials() {
   addMaterial("grey", 150, 255, false);
   addMaterial("black", 50, 255, false);
   addMaterial("red", color(200, 0, 0), 255, false);
-  addMaterial("blue", color(0, 0, 200), 255, false);
-  addMaterial("green", 200, 255, false);
+  addMaterial("blue", color(0, 0, 200), 255, true);
+  addMaterial("green", color(0, 255, 0), 255, false);
   addMaterial("yellow", color(240, 240, 0), 255, false);
   addMaterial("glass", 255, 100, true);
 }
@@ -203,38 +202,45 @@ void initGeometry() {
   initMaterials();
   updateWorld();
   furnitureList = new ArrayList<Furniture>();   
+ 
+ 
+  Furniture test = new Test();
+  test.name ="test";
+  furnitureList.add(test);
 
-  Furniture radiolaria = new Radiolaria();
-  radiolaria.name ="radiolaria";
-  furnitureList.add(radiolaria);
 
-//  Furniture jewel = new Jewel();
-//  jewel.name ="jewel";
-//  furnitureList.add(jewel);
-//
+
   Furniture breuer = new Breuer();
   breuer.name ="breuer";
   furnitureList.add(breuer);
-//
-//  Furniture rietveld = new Rietveld();
-//  rietveld.name ="rietveld";
-//  furnitureList.add(rietveld);
-//
-//  Furniture lack = new Lack();
-//  lack.name ="lack";
-//  furnitureList.add(lack);
-////
-////  Furniture thonet = new Thonet();
-////  thonet.name ="thonet";
-////  furnitureList.add(thonet);
-////
-//  Furniture vase = new Vase();
-//  vase.name ="vase";
-//  furnitureList.add(vase);
-//
-//  Furniture castiglioni = new Castiglioni();
-//  castiglioni.name ="castiglioni";
-//  furnitureList.add(castiglioni);
+
+  //  Furniture rietveld = new Rietveld();
+  //  rietveld.name ="rietveld";
+  //  furnitureList.add(rietveld);
+  //
+  //  Furniture lack = new Lack();
+  //  lack.name ="lack";
+  //  furnitureList.add(lack);
+
+  //  Furniture thonet = new Thonet();
+  //  thonet.name ="thonet";
+  //  furnitureList.add(thonet);
+  //
+  //  Furniture vase = new Vase();
+  //  vase.name ="vase";
+  //  furnitureList.add(vase);
+  //
+  //  Furniture radiolaria = new Radiolaria();
+  //  radiolaria.name ="radiolaria";
+  //  furnitureList.add(radiolaria);
+  //
+  //  Furniture jewel = new Jewel();
+  //  jewel.name ="jewel";
+  //  furnitureList.add(jewel);
+  //
+  //  Furniture castiglioni = new Castiglioni();
+  //  castiglioni.name ="castiglioni";
+  //  furnitureList.add(castiglioni);
 
   updateWorld();
   generateGeometry();
@@ -243,28 +249,24 @@ void initGeometry() {
 }
 
 void changeCollection () {
-  furniture ++ ;
-  if (furniture == furnitureList.size()) furniture = 0;
+  furniture = (furniture+1)%(furnitureList.size());
   updateWorld();
   if (!furnitureList.get(furniture).generated) {
     generateGeometry();
   }
   updateGeometry();
-  //  buildGeometry();
 }
 
 void resetGeometry() {
   furnitureList.get(furniture).reset();
   generateGeometry();
   updateGeometry();
-  //buildGeometry();
 }
 
 void randomGeometry() {
   furnitureList.get(furniture).randomize();
   generateGeometry();
   updateGeometry();
-  // buildGeometry();
 }
 
 void generateGeometry() {
@@ -272,6 +274,7 @@ void generateGeometry() {
   long startTime = millis();
   furnitureList.get(furniture).generate();
   lastOp = millis() - startTime;
+  buildGeometry();
 }
 
 boolean isGeometryValidated() {
@@ -351,9 +354,9 @@ void displayGeometry() {
     doRebuild = true;
   }
 
-  if (dots || structure || filled || details || original) {
-    furnitureList.get(furniture).display();
-  }
+  //if (dots || structure || filled || details || original) { // this so radiolaria animation works, correct
+  furnitureList.get(furniture).display();
+  // }
 
   if (wireframe || solid) {
     if (doRebuild) {
@@ -378,10 +381,12 @@ void updateWorld() {
 void saveSTL() {
   printConsole("saved model at "+nf(hour(), 2)+":"+nf(minute(), 2)+":"+nf(second(), 2)+";");
   for (Material thisMaterial : materialList) {
-    TriangleMesh thisMesh = thisMaterial.toxicMesh;
-    if (thisMesh.getNumFaces() > 0) {
-      thisMesh.computeFaceNormals();
-      thisMesh.saveAsSTL(sketchPath("")+"/models/"+getTimeStamp()+"_"+furnitureList.get(furniture).name+"_"+thisMaterial.name+".stl");
+    TriangleMesh thisToxicMesh = thisMaterial.toxicMesh;
+    if (thisToxicMesh != null) {
+      //if (thisToxicMesh.getNumFaces()>0) {
+      //   thisToxicMesh.computeFaceNormals();
+      thisToxicMesh.saveAsSTL(sketchPath("")+"/models/"+getTimeStamp()+"_"+furnitureList.get(furniture).name+"_"+thisMaterial.name+".stl");
+      // }
     }
   }
 }
@@ -394,6 +399,10 @@ class Furniture {
 
   boolean generated = false;
   boolean validated = false;
+
+  Object getRef() {
+    return this;
+  }
 
   void reset() {
   }

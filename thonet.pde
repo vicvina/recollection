@@ -31,7 +31,7 @@ class Thonet extends Furniture {
     createSlider(gThonet, "tBackLegA", tBackLegA, 0, HALF_PI, true, "back leg angle");
     createSlider(gThonet, "tBackRestA", tBackRestA, 0, HALF_PI, true, "back rest angle");
     cy += sh/2;
-    createSlider(gThonet, "woodColor", metalColor, 0, 255, true, "wood color");
+    //createSlider(gThonet, "woodColor", metalColor, 0, 255, true, "wood color");
 
     generateControllerList.add("tTubeR");
     generateControllerList.add("tTubeSmallR");

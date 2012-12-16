@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 
-int bTubeR, bCornerR, bStepLength, bShortStepLength, bStepNum, bRatioShortSteps, bRatioFabric, bFabricThickness, leatherColor, metalColor;
+int bTubeR, bCornerR, bStepLength, bShortStepLength, bStepNum, bRatioShortSteps, bRatioFabric, bFabricThickness;
 
 boolean bExtrudeFabric = true;
 
@@ -13,25 +13,30 @@ boolean bClosedPipe;
 
 class Breuer extends Furniture {
   ArrayList<Line3D> segmentList; 
-  ArrayList<Line3D> intersectionList;
-  ArrayList<Line3D> usedSegmentList;
-  ArrayList<Vec3D> connectorList; 
+  //ArrayList<Line3D> closingSegmentList; 
+
+  float tubeLength; 
+
+  //ArrayList<Line3D> intersectionList;
+
+  //  ArrayList<Line3D> usedSegmentList;
   ArrayList<Line3D> connectionList;
+  ArrayList<Vec3D> connectorList; 
 
   ToxicMesh breuerMesh;
-  Pipe pipe;   // maybe make local ??
-  Fabric myFabric;  // maybe make local ??
+  Pipe pipe;
+  Fabric myFabric;
 
   Breuer() {
     reset();
     cx = 0;
     cy = 0;
     Group gBreuer = cp5.addGroup("breuer").setPosition(columnx, marginy).hideBar();
-    createSlider(gBreuer, "bStepNum", bStepNum, 0, 50, true, "number of steps");
+    createSlider(gBreuer, "bStepNum", bStepNum, 1, 50, true, "number of steps");
     cy += sh/2;
     createToggle(gBreuer, "bClosedPipe", bClosedPipe, "closed pipe");
     cy += sh/2;
-    createSlider(gBreuer, "bStepLength", bStepLength, 0, 10, true, "long step length");
+    createSlider(gBreuer, "bStepLength", bStepLength, 0, 12, true, "long step length");
     createSlider(gBreuer, "bShortStepLength", bShortStepLength, 1, 10, true, "short step length");
     createSlider(gBreuer, "bRatioShortSteps", bRatioShortSteps, 0, 10, true, "ratio long/short steps");
     cy += sh/2;
@@ -39,10 +44,7 @@ class Breuer extends Furniture {
     cy += sh/2;
     createSlider(gBreuer, "bTubeR", bTubeR, 5, 50, true, "tube radius");
     createSlider(gBreuer, "bCornerR", bCornerR, 10, 500, true, "corner radius");
-
     cy += sh/2;
-//    createSlider(gBreuer, "leatherColor", leatherColor, 0, 255, true, "leather color");
-//    createSlider(gBreuer, "metalColor", metalColor, 0, 255, true, "metal color");
     updateControllerList.add("bCornerR");
     updateControllerList.add("bTubeR");
     updateControllerList.add("bClosedPipe");
@@ -51,12 +53,12 @@ class Breuer extends Furniture {
   void reset () {
     bClosedPipe = false;
     bTubeR = 10;
-    bCornerR = 50;
-    bStepLength = 10;
-    bShortStepLength = 3;
-    bStepNum = 15;
+    bCornerR = 60;
+    bStepLength = 12;
+    bShortStepLength = 4;
+    bStepNum = 25;
     bRatioShortSteps = 2;
-    bRatioFabric = 3;
+    bRatioFabric = 0;
     bFabricThickness = 2;
   }
 
@@ -69,23 +71,23 @@ class Breuer extends Furniture {
   }
 
   void generate() {
-    //    updateWorld();
     gridSize = 50;
+    tubeLength = 0;
     partList = new ArrayList<Part>();
     segmentList =  new ArrayList<Line3D>();
-
-    if (original) {
-      if (breuerMesh == null) {
-//        breuerMesh = new ToxicMesh();
-//        breuerMesh.loadMesh("Breuer_m_binary.stl");
-//        breuerMesh.setLocation(new Vec3D(0, 0, -bTubeR));
-//        breuerMesh.setScale(1000);
-//        breuerMesh.offcenter = true;
-//        breuerMesh.material = "model";
-//        breuerMesh.update();
-      }
-//      partList.add(breuerMesh);
-    }
+    // closingSegmentList =  new ArrayList<Line3D>();
+    // if (original) {
+    //   if (breuerMesh == null) {
+    //        breuerMesh = new ToxicMesh();
+    //        breuerMesh.loadMesh("Breuer_m_binary.stl");
+    //        breuerMesh.setLocation(new Vec3D(0, 0, -bTubeR));
+    //        breuerMesh.setScale(1000);
+    //        breuerMesh.offcenter = true;
+    //        breuerMesh.material = "model";
+    //        breuerMesh.update();
+    //  }
+    //      partList.add(breuerMesh);
+    //  }
 
     if (basics) {
       pipe = new Pipe();
@@ -102,8 +104,6 @@ class Breuer extends Furniture {
       pipe.addPoint(new Vec3D(stepLL/2, -stepL/2, stepL));
       pipe.addPoint(new Vec3D(stepLL/2, -stepL/2, 0));
       pipe.addPoint(new Vec3D(stepLL/2, 0, 0));
-
-      // pipe.addPoint(new Vec3D(stepL/2, 0, 0));
       pipe.addPoint(new Vec3D(stepLL/2, stepL/2, 0));
       pipe.addPoint(new Vec3D(stepLL/2, stepL/2, stepL));
       pipe.addPoint(new Vec3D(stepLL/2-stepS, stepL/2, stepL));
@@ -114,13 +114,10 @@ class Breuer extends Furniture {
       pipe.addPoint(new Vec3D(-stepLL/2, stepL/2, 0));
       pipe.addPoint(new Vec3D(-stepLL/2, 0, 0));
 
-      //     pipe.addPoint(new Vec3D(+stepL/2-stepS, -stepL/2, stepL-stepS));
-
       pipe.cornerR = bCornerR;
       pipe.tubeR = bTubeR;
       pipe.material = "metal";
       partList.add(pipe);
-
       //      float pChairW = 720;
       //      float pChairH = 515;
       //      float pChairD = 640;
@@ -160,90 +157,107 @@ class Breuer extends Furniture {
       for (int i =0;i<pipe.pointList.size()-1;i++) {
         Line3D newSegment = new Line3D(pipe.pointList.get(i), pipe.pointList.get(i+1));
         segmentList.add(newSegment);
+        tubeLength += newSegment.getLength();
       }
     }
-    /*
-     Cylinder seat = new Cylinder();
-     seat.setLocation(new Vec3D(0, 0, 0));
-     seat.setRotation(new Vec3D(1, 0, 0));
-     seat.setRadius(pTubeSmallR);
-     seat.setHeight(pChairD);
-     partList.add(seat);
-     */
     generateRandomPipe();
     generateFabrics();
     generated = true;
-    validated = true;
   }
 
   void generateRandomPipe() {
     pipe = new Pipe();
-    Vec3D newPoint = loc.copy();
-    Vec3D lastStep = Vec3D.ZERO.copy();
-    Vec3D lastPoint = Vec3D.ZERO.copy();
-    pipe.addPoint(newPoint.copy());
-    int totalAttempts = 0;
+    validated = true;
+    int[] lengthList = { 
+      int(bShortStepLength * gridSize), int(bStepLength * gridSize)
+    };
+    Vec3D lastDirection = Vec3D.ZERO.copy();
+    Vec3D lastPoint = loc.copy();
+    pipe.addPoint(lastPoint.copy());
     for (int i=0;i<bStepNum;i++) {
-      boolean flag = false;
-      int attempts = 0;
-      while (flag == false && attempts < 500) {
-        // println("attempts "+attempts);
-        boolean directionFlag = false; // to check if new direction is equal or opposite to previous one
-        boolean boundariesFlag = false; // to check if new end point is within boundaries
-        boolean intersectFlag = false; // to check if new segment intersects previous ones
-        Vec3D step = normalList[(int)random(6)].copy(); // get random direction
-        //Vec3D step = new Vec3D(random(2*PI), random(2*PI), random(PI));
-        // check if direction is same or opposite
-        if ( step.equals(lastStep.getInverted()) || step.equals(lastStep) ) {
-          attempts ++;
-          directionFlag = true;
-        } 
-        if (!directionFlag) {
-          // calculate lenght of next step
-          int stepLength = 0;
-          float n = random(10);      
-          if (n>bRatioShortSteps) {
-            stepLength = int(bStepLength * gridSize);
-          } 
-          else {
-            stepLength = int(bShortStepLength*gridSize);
-          }
-          newPoint.addSelf(step.scale(stepLength));
-          // check if new point is within boundaries
-          if (!newPoint.isInAABB(worldBox)) {
-            attempts ++;
-            boundariesFlag = true;
-            newPoint.subSelf(step.scale(stepLength));
-          } 
-          if (!boundariesFlag) {
-            Line3D newSegment = new Line3D(lastPoint, newPoint);
-            /// check for intersections with previous tubes
-            for (Line3D thisSegment: segmentList) {
-              if (checkLinesCollision(newSegment, thisSegment)) {
-                attempts ++;
-                intersectFlag = true;
-                newPoint.subSelf(step.scale(stepLength));
-                break;
-              }
-            }
-            if (!intersectFlag) {
-              flag = true;
-              segmentList.add(newSegment.copy());
-              lastStep = step.copy();
-              lastPoint = newPoint.copy();
-              pipe.addPoint(newPoint.copy());
-            }
+      ArrayList<Vec3D> potentialPoints = new ArrayList<Vec3D>();
+      ArrayList<Vec3D> potentialDirections = new ArrayList<Vec3D>();
+      for (int j=0; j<normalList.length; j++) {
+        Vec3D newDirection = normalList[j].copy(); // get  direction
+        for (int k=0; k < lengthList.length; k++) {
+          int newLength = lengthList[k]; // get length
+          //   println(newDirection+" "+newLength);
+          if (stepIsValid(lastPoint, lastDirection, newDirection, newLength)) {
+            Vec3D newPoint = lastPoint.copy();
+            newPoint.addSelf(newDirection.scale(newLength));
+            potentialPoints.add(newPoint);
+            potentialDirections.add(newDirection);
           }
         }
       }
-      totalAttempts += attempts;
+      if (potentialPoints.size() > 0) {
+        //// here we need to include ratio of short / long strips  !!!
+        int randomPointNum = int(random(potentialPoints.size()));
+        Vec3D newPoint = potentialPoints.get(randomPointNum);
+        pipe.addPoint(newPoint.copy());
+        Line3D newSegment = new Line3D(lastPoint, newPoint);
+        segmentList.add(newSegment);
+        tubeLength += newSegment.getLength();
+        lastPoint = newPoint.copy();
+        lastDirection = potentialDirections.get(randomPointNum);
+      } 
+      else { // we got stacked !
+        validated = false;
+        println("error");
+      }
     }
     if (bClosedPipe) {
-      pipe.addPoint((Vec3D)pipe.pointList.get(0));
+      validated = true;
+      while (!lastPoint.equals(loc)) {   
+        /// loop through all lentgth/direction combinations and keep good ones
+        ArrayList<Vec3D> potentialPoints = new ArrayList<Vec3D>();
+        ArrayList<Vec3D> potentialDirections = new ArrayList<Vec3D>();
+        float bestDistance = lastPoint.distanceTo(loc);
+        Vec3D bestDirection = null;
+        Vec3D bestPoint = null;
+        for (int i=0; i<normalList.length; i++) {
+          for (int j=0; j< lengthList.length; j++) {
+            Vec3D potentialDirection = normalList[i].copy();
+            int stepLength = lengthList[j];
+            if (stepIsValid(lastPoint, lastDirection, potentialDirection, stepLength)) {
+              Vec3D potentialPoint = lastPoint.copy();
+              potentialPoint.addSelf(potentialDirection.scale(stepLength));
+              potentialPoints.add(potentialPoint.copy());   
+              potentialDirections.add(potentialDirection.copy());
+              float potentialDistance = potentialPoint.distanceTo(loc);
+              if (bestDistance > potentialDistance) {
+                bestPoint = potentialPoint.copy();
+                bestDirection = potentialDirection.copy();
+                bestDistance = potentialDistance;
+              }
+            }
+          }
+        }
+        if (bestPoint == null) {  // no points get us closer to target :(
+          if (potentialPoints.size() > 0) {  // check there are at least one potential point to try a different path
+            int randomPoint = int(random(potentialPoints.size()));
+            bestPoint = potentialPoints.get(randomPoint);
+            bestDirection = potentialDirections.get(randomPoint);
+          }
+        }
+        if (bestPoint != null) {  // ok we got a point !
+          pipe.addPoint(bestPoint);
+          Line3D newSegment = new Line3D(lastPoint, bestPoint);
+          segmentList.add(newSegment);
+          tubeLength += newSegment.getLength();
+          // 
+          //closingSegmentList.add(newSegment);
+          lastDirection = bestDirection.copy();
+          lastPoint = bestPoint.copy();
+        } 
+        else { // we got stacked :(
+          validated = false;
+          break;
+        }
+      }
     }
-
-    if (pipe.pointList.size()>1) {
-      printConsole("!tested "+totalAttempts+" options for "+ segmentList.size()+" segments;");
+    if (pipe.pointList.size()>0) {
+      printConsole("!"+tubeLength+" mm tube longitute in "+segmentList.size()+" segments ");
       partList.add(pipe);
       pipe.cornerR = bCornerR;
       pipe.tubeR = bTubeR;
@@ -251,8 +265,29 @@ class Breuer extends Furniture {
     }
   }
 
+  boolean stepIsValid(Vec3D lastPoint, Vec3D lastStepDirection, Vec3D stepDirection, float stepLength) {
+    // check if direction is same or opposite
+    if (stepDirection.equals(lastStepDirection)) { // || stepDirection.equals(lastStepDirection.getInverted()) ) {
+      return false;
+    } 
+    Vec3D newPoint = lastPoint.copy();
+    newPoint.addSelf(stepDirection.scale(stepLength));
+    // check if new point is within boundaries
+    if (!newPoint.isInAABB(worldBox)) {
+      return false;
+    } 
+    // check intersections
+    Line3D newSegment = new Line3D(lastPoint, newPoint);
+    for (Line3D thisSegment : segmentList) {
+      if (checkLinesCollision(newSegment, thisSegment)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void generateFabrics() {
-    usedSegmentList =  new ArrayList<Line3D>();
+    // usedSegmentList =  new ArrayList<Line3D>();
     connectorList  = new ArrayList<Vec3D>(); 
     connectionList = new ArrayList<Line3D>(); 
     // iterate over all segments of the piece in order to place fabrics
@@ -261,13 +296,10 @@ class Breuer extends Furniture {
     for (Line3D thisSegment : segmentList) {
       for (Line3D otherSegment : segmentList) {
         ArrayList<Line3D> thisConnectionList = new ArrayList();
-
         if (!thisSegment.equals(otherSegment) &&           // check we are not connecting the same segments
         checkLinesParallel(thisSegment, otherSegment) &&        // check to connect only parallel segments 
         !checkLinesCoincident(thisSegment, otherSegment) &&          // check segments are not coincident
         !(thisSegment.a.z == 0 && thisSegment.b.z == 0 && otherSegment.a.z == 0 && otherSegment.b.z == 0)) { // check both segments are not on the floor
-
-
           // calculate points on segment that might potentially be connected
           thisPointList  = new ArrayList<Vec3D>();
           otherPointList  = new ArrayList<Vec3D>();   
@@ -336,15 +368,30 @@ class Breuer extends Furniture {
       thisPart.display();
     }
     if (details) {
-      for (Line3D thisSegment : segmentList) {
-        stroke(color(strokeColor, 0, 0), strokeAlpha);
-        strokeWeight(thinStroke);
+      for (Line3D thisSegment :segmentList) {
+        stroke(color(0, 0, strokeColor), strokeAlpha);
+        strokeWeight(thickStroke);
         fx.line(thisSegment);
       }
+
+      //      for (Line3D thisSegment : segmentList) {
+      //        for (Line3D otherSegment : segmentList) {
+      //          stroke(color(0, 0, strokeColor), strokeAlpha);
+      //          strokeWeight(thinStroke);
+      //          if (!thisSegment.equals(otherSegment) && checkLinesCollision(thisSegment, otherSegment)) {
+      //            stroke(color(strokeColor, 0, 0), strokeAlpha);
+      //            strokeWeight(thickStroke);
+      //            fx.line(thisSegment);
+      //            fx.line(otherSegment);
+      //          }
+      //          fx.line(thisSegment);
+      //        }
+      //      }
+
       for (Line3D thisLine : connectionList) {
         stroke(color(strokeColor, 0, 0), strokeAlpha/2);
         strokeWeight(thinStroke);
-        fx.line(thisLine);
+        //  fx.line(thisLine);
       }
     }
     if (dots) {

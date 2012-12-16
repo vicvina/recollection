@@ -150,7 +150,7 @@ void initGui() {
   boldFont = createFont("HelveticaNeue-Bold", 10);
   titleBoldFont = createFont("HelveticaNeue-Bold", 24);
   titleLightFont = createFont("HelveticaNeue-Light", 24);
-
+  //
   cp5 = new ControlP5(this);
   guiFont = new ControlFont(lightFont);
   cp5.setFont(guiFont);
@@ -159,6 +159,7 @@ void initGui() {
   cp5.setColorLabel(color(fontColor));
   cp5.setColorValue(color(fontColor));
   cp5.setColorActive(color(activeColor));
+  cp5.lock();
   /////////////////////////
   // main group
   /////////////////////////
@@ -241,7 +242,7 @@ void initGui() {
   createToggle(gWorld, "light", light, "lights");
   createToggle(gWorld, "soft", soft, "smooth");
   cy += sh/2;
-  //  createSlider(gWorld, "backgroundColor", backgroundColor, 0, 255, true, "background");
+  createSlider(gWorld, "backgroundColor", backgroundColor, 0, 255, true, "background");
   //  createSlider(gWorld, "fontColor", fontColor, 0, 255, true, "font color");
   //  createSlider(gWorld, "sliderColor", sliderColor, 0, 255, true, "slider color");
   //  createSlider(gWorld, "activeColor", activeColor, 0, 255, true, "active color");
@@ -430,69 +431,92 @@ String lastControllerName;
 
 void controlEvent(ControlEvent theEvent) {  
   if (mousePressed) { // update only when updates come from user interaction with gui!!!
-    Controller c=theEvent.controller();
-    String controllerName = c.name();
-    if (!controllerName.equals(lastControllerName) || int(c.getValue()) != lastControllerValue) { // hack to debounce float returned values, improve !!!
-      lastControllerName = controllerName;
-      lastControllerValue = int(c.getValue());
-      boolean retainFlag = false;
-      for (String thisRetainController : retainControllerList) {
-        if (thisRetainController.equals(controllerName)) {
-          retainFlag = true;
-          break;
+    if (theEvent.isGroup()) {
+     // println(theEvent.group().value());
+      raMaterial = materialList.get((int)theEvent.group().value()).name;       //////////////////
+      if (theEvent.group().name().equals("materials")) {
+        println(theEvent.group().name());
+        // furnitureList.get(furniture).update();
+      }
+    } 
+    else if (theEvent.isController()) {    
+      Controller c=theEvent.controller();
+      String controllerName = c.name();
+
+      if (!controllerName.equals(lastControllerName) || int(c.getValue()) != lastControllerValue) { // hack to debounce float returned values, improve !!!
+        lastControllerName = controllerName;
+        lastControllerValue = int(c.getValue());
+        boolean retainFlag = false;
+        for (String thisRetainController : retainControllerList) {
+          if (thisRetainController.equals(controllerName)) {
+            retainFlag = true;
+            break;
+          }
         }
-      }
-      if (retainFlag) {    
-        if (solid || wireframe) {
-          updateMaterials();
+        if (retainFlag) {    
+          if (solid || wireframe) {
+            updateMaterials();
+          }
         }
-      }
-      boolean updateFlag = false;
-      for (String thisUpdateController : updateControllerList) {
-        if (thisUpdateController.equals(controllerName)) {
-          updateFlag = true;
-          break;
+        boolean updateFlag = false;
+        for (String thisUpdateController : updateControllerList) {
+          if (thisUpdateController.equals(controllerName)) {
+            updateFlag = true;
+            break;
+          }
         }
-      }
-      if (updateFlag) {   
-        updateGeometry();
-      }
-      boolean generateFlag = false;
-      for (String thisGenerateController : generateControllerList) {
-        if (thisGenerateController.equals(controllerName)) {
-          generateFlag = true;
-          break;
+        if (updateFlag) {   
+          updateGeometry();
         }
-      }
-      if (generateFlag) {      
-        generateGeometry();
-      }
-      boolean limitsFlag = false;
-      for (int i=0;i<limitControllerList.length;i++) {
-        String thisController = limitControllerList[i];
-        if (thisController.equals(controllerName)) {
-          limitsFlag = true;
-          break;
+        boolean generateFlag = false;
+        for (String thisGenerateController : generateControllerList) {
+          if (thisGenerateController.equals(controllerName)) {
+            generateFlag = true;
+            break;
+          }
         }
-      }
-      if (limitsFlag) {        
-        updateWorld();
-      }
-      if (controllerName.equals("mesh")) {
-        doRebuild = true;
+        if (generateFlag) {      
+          generateGeometry();
+        }
+        boolean limitsFlag = false;
+        for (int i=0;i<limitControllerList.length;i++) {
+          String thisController = limitControllerList[i];
+          if (thisController.equals(controllerName)) {
+            limitsFlag = true;
+            break;
+          }
+        }
+        if (limitsFlag) {        
+          updateWorld();
+        }
+        if (controllerName.equals("mesh")) {
+          doRebuild = true;
+        }
       }
     }
   }
 }
 
-void createSlider(Group thisGroup, String thisVariable, float val, float minVal, float maxVal, boolean autoUpdate, String label) {
-  Slider s = cp5.addSlider(thisVariable, minVal, maxVal, val, cx, cy, guix, guiy).setAutoUpdate(autoUpdate).
-   setGroup(thisGroup);
-  s.setLabel(label); // .setDecimalPrecision(1)     .setSliderMode(Slider.FIX)  // .showTickMarks(true).setNumberOfTickMarks(11).setColorTickMark(activeColor).snapToTickMarks(false)
+void createDropdownList(Group thisGroup, String label, String[] items) {
+  cy+= sh;
+  DropdownList d = cp5.addDropdownList("label", cx, cy, guix, 100).setGroup(thisGroup).setLabel(label).setBarHeight(guiy);
+  controlP5.Label l = d.captionLabel();
+  d.toUpperCase(false);
+  //  for (int i=0;i<items.length;i++) {
+  d.addItems(items);
+  // d.style().marginLeft = 2;
+  cy+= sh;
+}
+
+Slider createSlider(Group thisGroup, String thisVariable, float val, float minVal, float maxVal, boolean autoUpdate, String label) {
+  Slider s = cp5.addSlider(thisVariable, minVal, maxVal, val, cx, cy, guix, guiy).setAutoUpdate(autoUpdate).setGroup(thisGroup);
+
+  s.setLabel(label); // .setDecimalPrecision(1).setSliderMode(Slider.FIX)  // .showTickMarks(true).setNumberOfTickMarks(11).setColorTickMark(activeColor).snapToTickMarks(false)
   controlP5.Label l = s.captionLabel();
   l.toUpperCase(false);
   l.style().marginLeft = 2;
   cy+= sh;
+  return s;
 }
 
 void createButton(Group thisGroup, String thisFunction, String label) {
